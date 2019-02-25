@@ -12,6 +12,7 @@ var cookieParser = require('cookie-parser')
 
 /* Models */
 const UserModel = mongoose.model('users');
+const AuthModel = mongoose.model('Auth');
 
 
 // start user signup function 
