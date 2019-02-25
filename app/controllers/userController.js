@@ -126,33 +126,7 @@ let signinFunction = (req, res) => {
             }
         })
     }
-  
-  
-  //   let validatePassword = (retrievedUserDetails) => {
-  //       return new Promise((resolve, reject) => {
-  //           passwordLib.comparePassword(req.body.password, retrievedUserDetails.password, (err, isMatch) => {
-  //               console.log("=>",isMatch);
-  //               if (err) {
-  //                   logger.error(err.message, 'userController: validatePassword()', 10)
-  //                   let apiResponse = response.generate(true, 'Login Failed', 500, null)
-  //                   reject(apiResponse)
-  //               } else if (isMatch) {
-  //                   let retrievedUserDetailsObj = retrievedUserDetails.toObject()
-  //                   delete retrievedUserDetailsObj.password
-  //                   delete retrievedUserDetailsObj._id
-  //                   delete retrievedUserDetailsObj.__v
-  //                   delete retrievedUserDetailsObj.createdOn
-  //                   delete retrievedUserDetailsObj.modifiedOn
-  //                   resolve(retrievedUserDetailsObj)
-  //               } else {
-  //                   logger.info('Login Failed Due To Invalid Password', 'userController: validatePassword()', 10)
-  //                   let apiResponse = response.generate(true, 'Wrong Password.Login Failed', 400, null)
-  //                   reject(apiResponse)
-  //               }
-  //           })
-  //       })
-  //   }
-  
+    
     let validatePassword = (retrievedUserDetails) => {
       console.log("validatePassword",retrievedUserDetails);
       return new Promise((resolve, reject) => {
