@@ -17,7 +17,7 @@ let emailSend=(config)=>{
         }});
     
         let mailOptions = {
-            from: '"Meeting Planer" <vivektesting07@gmail.com>', // sender address
+            from: '"ToDo" <vivektesting07@gmail.com>', // sender address
             to: config.to, // list of receivers
             subject: config.subject, // Subject line
             text: config.text, // plain text body
