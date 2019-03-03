@@ -8,4 +8,10 @@ module.exports.setRouter = (app) => {
     let baseUrl = `${appConfig.apiVersion}/single`;
 
     app.post(`${baseUrl}/addlist`, singleController.addlist);
+
+    app.get(`${baseUrl}/getAllList`, singleController.getAllList);
+
+    app.post(`${baseUrl}/deleteList`, singleController.deleteList);
+
+    app.post(`${baseUrl}/updateList`, singleController.updateList);
 }
