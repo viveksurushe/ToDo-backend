@@ -22,6 +22,10 @@ let todolistSchema = new Schema({
     type:String,
     default:''
   },
+  listItem: {
+    type: JSON,
+    default: ''
+  },
   createdOn :{
     type:Date,
     default:""

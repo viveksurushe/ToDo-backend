@@ -14,4 +14,13 @@ module.exports.setRouter = (app) => {
     app.post(`${baseUrl}/deleteList`, singleController.deleteList);
 
     app.post(`${baseUrl}/updateList`, singleController.updateList);
+
+    app.post(`${baseUrl}/getTodo`, singleController.getTodo);
+
+    app.post(`${baseUrl}/addTodo`, singleController.addTodo);
+
+    app.post(`${baseUrl}/deleteTodo`, singleController.deleteTodo);
+
+    app.post(`${baseUrl}/updateTodo`, singleController.updateTodo);
+    
 }
