@@ -22,5 +22,13 @@ module.exports.setRouter = (app) => {
     app.post(`${baseUrl}/deleteTodo`, singleController.deleteTodo);
 
     app.post(`${baseUrl}/updateTodo`, singleController.updateTodo);
+
+    app.post(`${baseUrl}/done`, singleController.done);
+
+    app.post(`${baseUrl}/childAdd`, singleController.childAdd);
+
+    app.post(`${baseUrl}/childdelete`, singleController.childdelete);
+
+    app.post(`${baseUrl}/childupdate`, singleController.updateChild);
     
 }

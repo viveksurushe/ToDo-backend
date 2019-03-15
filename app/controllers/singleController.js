@@ -106,13 +106,17 @@ let addTodo=(req,res)=>{
             let apiResponse = response.generate(true, 'Failed To Add Todo', 500, null)
             reject(apiResponse)
           } else{
-            if(result.listItem == ""){
-              let obj={};
-              obj[req.body.listItem]=[];
-              result.listItem=obj;
+            if(result.listItem){
+              let obj={"name":req.body.listItem,"status":"open","child":[]};
+              // obj[req.body.listItem]=[{"status":"open","child":[]}];
+              // result.listItem=obj;
+              result.listItem.push(obj);
               resolve(result)
             }else{
-              result.listItem[req.body.listItem]=[];
+              // result.listItem[req.body.listItem]=[{"status":"open","child":[]}];
+              let obj={"name":req.body.listItem,"status":"open","child":[]};
+              result.listItem=[];
+              result.listItem.push(obj);
               resolve(result);
             }
           }
@@ -171,7 +175,7 @@ let deleteTodo=(req,res)=>{
             let apiResponse = response.generate(true, 'Failed To Add Todo', 500, null)
             reject(apiResponse)
           } else{
-            delete result.listItem[req.body.listItem];
+            result.listItem.splice(req.body.listItem, 1);
             resolve(result)
           }
         });
@@ -201,8 +205,7 @@ let updateTodo=(req,res)=>{
             let apiResponse = response.generate(true, 'Failed To Add Todo', 500, null)
             reject(apiResponse)
           } else{
-            result.listItem[req.body.listItem]=result.listItem[req.body.oldItem]
-            delete result.listItem[req.body.oldItem];
+            result.listItem[req.body.key].name=req.body.listItem;
             resolve(result)
           }
         });
@@ -220,6 +223,7 @@ let updateTodo=(req,res)=>{
     update(req,res,result,"updated")
   })
 }
+
 let update=(req,res,result,type)=>{
   TodolistModel.findOneAndUpdate({listId:req.body.listId},{"$set":{"listItem":result.listItem}},{new:true},(err,doc)=>{
     if(err){
@@ -232,6 +236,126 @@ let update=(req,res,result,type)=>{
     }
   });
 }
+
+let done = (req,res)=>{
+  let doneFind=()=>{
+    return new Promise((resolve,reject)=>{
+      if(req.body.listId){
+        TodolistModel.findOne({ listId: req.body.listId })
+        .exec((err,result)=>{
+          if (err) {
+            logger.error(err.message, 'singleController: done', 10);
+            let apiResponse = response.generate(true, 'Failed To Add Todo', 500, null)
+            reject(apiResponse)
+          } else{
+            result.listItem[req.body.key].status=req.body.status;
+            resolve(result)
+          }
+        });
+      }else{
+            let apiResponse = response.generate(true, '"listId" parameter is missing', 400, null)
+            reject(apiResponse)
+       }
+
+    })
+  }
+
+  doneFind(req,res)
+  .then(function(result){
+    update(req,res,result,"updated")
+  })
+}
+
+//for child elements
+let childAdd=(req,res)=>{
+  let childaddFind=()=>{
+    return new Promise((resolve,reject)=>{
+      if(req.body.listId){
+        TodolistModel.findOne({ listId: req.body.listId })
+        .exec((err,result)=>{
+          if (err) {
+            logger.error(err.message, 'singleController: addTodo', 10);
+            let apiResponse = response.generate(true, 'Failed To Add Todo', 500, null)
+            reject(apiResponse)
+          } else{
+            result.listItem[req.body.key].child.push(req.body.childItem);
+            resolve(result)
+          }
+        });
+      }else{
+            let apiResponse = response.generate(true, '"listId" parameter is missing', 400, null)
+            reject(apiResponse)
+      }
+
+    })
+
+  }
+
+  childaddFind(req,res)
+  .then(function(result){
+    update(req,res,result,"updated")
+  })
+}
+
+let childdelete=(req,res)=>{
+  let delChildFind=()=>{
+    return new Promise((resolve,reject)=>{
+      if(req.body.listId){
+        TodolistModel.findOne({ listId: req.body.listId })
+        .exec((err,result)=>{
+          if (err) {
+            logger.error(err.message, 'singleController: childdelete', 10);
+            let apiResponse = response.generate(true, 'Failed To Add Todo', 500, null)
+            reject(apiResponse)
+          } else{
+            result.listItem[req.body.key].child.splice(req.body.ckey,1);
+            resolve(result)
+          }
+        });
+      }else{
+            let apiResponse = response.generate(true, '"listId" parameter is missing', 400, null)
+            reject(apiResponse)
+      }
+
+    })
+
+  }
+
+  delChildFind(req,res)
+  .then(function(result){
+    update(req,res,result,"Deleted")
+  })
+}
+
+let updateChild=(req,res)=>{
+  let upChildFind=()=>{
+    return new Promise((resolve,reject)=>{
+      if(req.body.listId){
+        TodolistModel.findOne({ listId: req.body.listId })
+        .exec((err,result)=>{
+          if (err) {
+            logger.error(err.message, 'singleController: updateChild', 10);
+            let apiResponse = response.generate(true, 'Failed To update Todo child', 500, null)
+            reject(apiResponse)
+          } else{
+            result.listItem[req.body.key].child[req.body.ckey]=req.body.item;
+            resolve(result)
+          }
+        });
+      }else{
+            let apiResponse = response.generate(true, '"listId" parameter is missing', 400, null)
+            reject(apiResponse)
+      }
+
+    })
+
+  }
+
+  upChildFind(req,res)
+  .then(function(result){
+    update(req,res,result,"updated")
+  })
+}
 module.exports = {
     addlist: addlist,
     getAllList:getAllList,
@@ -240,5 +364,9 @@ module.exports = {
     addTodo:addTodo,
     getTodo:getTodo,
     deleteTodo:deleteTodo,
-    updateTodo:updateTodo
+    updateTodo:updateTodo,
+    done:done,
+    childAdd:childAdd,
+    childdelete:childdelete,
+    updateChild:updateChild
   }// end exports
