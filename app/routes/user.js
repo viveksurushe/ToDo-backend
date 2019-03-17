@@ -183,4 +183,43 @@ module.exports.setRouter = (app) => {
                     }
             */
 
+    
+    app.get(`${baseUrl}/members`, userController.getUserListFun);
+
+       /**
+        * @apiGroup USERS
+        * @apiVersion  1.0.0
+        * @api {get} /api/v1/users/members api for geting all users.
+        *
+        *
+        * @apiSuccess {object} myResponse shows error status, message, http status code, result.
+        * 
+        * @apiSuccessExample {object} Success-Response:
+                {
+                    "error": false,
+                    "message": "Users Found",
+                    "status": 200,
+                    "data": [
+                        {
+                            "_id": "5c5ffd9c77d71a27660268e0",
+                            "lastName": "Shelke",
+                            "firstName": "Balaji",
+                            "userId": "B_VOhRflU"
+                        },
+                        {
+                            "_id": "5c61bdadd63e37a2865ef771",
+                            "lastName": "LastName",
+                            "firstName": "firstName",
+                            "userId": "Wuc6LydE7"
+                        },
+                        {
+                            "_id": "5c62a0ca29d86c21ea76bfd5",
+                            "lastName": "Kore",
+                            "firstName": "Nutan",
+                            "userId": "HGY2eMlOa"
+                        }
+                    ]
+                }
+       */
+
 }

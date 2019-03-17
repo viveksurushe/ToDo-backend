@@ -372,6 +372,26 @@ let updatePass = (req,res) =>{
     })
 }// end of updatePass
 
+// start of getUserListFun function 
+let getUserListFun =(req,res)=>{
+    UserModel.find({role:'multi'})
+    .select('firstName lastName userId')
+    .exec((err, result) => {
+        if (err) {
+            console.log(err)
+            logger.error(err.message, 'userController: getUserListFun', 10)
+            let apiResponse = response.generate(true, 'Failed To Get  userlist', 500, null)
+            res.send(apiResponse)
+        } else if (check.isEmpty(result)) {
+            logger.info('No User Found', 'userController: getUserListFun')
+            let apiResponse = response.generate(true, 'No User Found', 404, null)
+            res.send(apiResponse)
+        } else {
+            let apiResponse = response.generate(false, 'Users Found', 200, result)
+            res.send(apiResponse)
+        }
+    })
+}// end of getUserListFun
 
 module.exports = {
     signUpFunction: signUpFunction,
@@ -379,5 +399,6 @@ module.exports = {
     logout: logout,
     sendVeriCode:sendVeriCode,
     getCode:getCode,
-    updatePass:updatePass
+    updatePass:updatePass,
+    getUserListFun:getUserListFun
   }// end exports
