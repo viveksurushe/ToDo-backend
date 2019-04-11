@@ -10,6 +10,10 @@ let userSchema = new Schema({
     type: String,
     default: ''
   },
+  access: {
+    type: String,
+    default: ''
+  },
   firstName: {
     type: String,
     default: ''
