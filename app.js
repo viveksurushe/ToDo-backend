@@ -11,8 +11,8 @@ const routeLoggerMiddleware = require('./app/middlewares/routeLogger.js');
 const globalErrorMiddleware = require('./app/middlewares/appErrorHandler');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
-
-
+const socket = require('socket.io');
+const check = require('./app/libs/checkLib');
 app.use(morgan('dev'));
 
 app.use(bodyParser.json());
@@ -100,6 +100,9 @@ function onError(error) {
   }
 }
 
+//ES6 Promices
+mongoose.Promise = global.Promise;
+
 /**
  * Event listener for HTTP server "listening" event.
  */
@@ -145,8 +148,41 @@ mongoose.connection.on('open', function (err) {
   //process.exit(1)
 }); // enr mongoose connection open handler
 
+/* Models */
+const TodolistModel = mongoose.model('todolist');
+const UserModel = mongoose.model('users');
 
+const io = socket(server);
+var clients = 0;
+io.sockets.on('connection',(socket)=>{
+  ++clients;
+  console.log("------------->new connection id",socket.id);
+  
+  socket.on('updateList',(userId)=>{
+    TodolistModel.find({userId:userId})
+    .lean()
+    .exec((err,result)=>{
+      if(err){
+        console.log("Error Occured in socket io event");
+      } else if(check.isEmpty(result)){
+        console.log("error list is empty");
+        socket.emit('updatedList',result);
+      }else{
+        socket.emit('updatedList',result);
+      }
+    });
+  })
 
+  socket.on('disconnect', function () {
+    --clients;
+  });
+
+  socket.on('updateFrd',(userId)=>{
+    console.log("workk");
+    io.sockets.emit('updatedFrd', clients);
+  });
+  
+});
 // end socketio connection handler
 
 
