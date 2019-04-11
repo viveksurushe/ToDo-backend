@@ -12,4 +12,15 @@ module.exports.setRouter = (app) => {
     app.get(`${baseUrl}/frdList`, multiController.frdReq);
 
     app.post(`${baseUrl}/sendReq`,multiController.sendReq);
+
+    app.post(`${baseUrl}/cancelReq`,multiController.cancelReq);
+
+    app.post(`${baseUrl}/mgetAllList`,multiController.mgetAllList);
+
+    app.get(`${baseUrl}/undo`,multiController.undo);
+
+    app.post(`${baseUrl}/acceptReq`,multiController.acceptReq);
+
+    app.post(`${baseUrl}/unfriend`,multiController.unfriend);
+
 }

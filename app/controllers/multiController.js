@@ -12,6 +12,8 @@ var cookieParser = require('cookie-parser');
 
 /* Models */
 const ReuestModel = mongoose.model('request');
+const HistoryModel = mongoose.model('history');
+const TodolistModel = mongoose.model('todolist');
 
 
 // start of frdReq function 
@@ -38,9 +40,8 @@ let frdReq =(req,res)=>{
 // start of frdList function 
 let frdList =(req,res)=>{
     ReuestModel.find({userId1:req.body.userId1,accept:true})
-    .select('userName2 userId2')
+    .select('_id userName2 userId2')
     .exec((err, result) => {
-        
         if (err) {
             console.log(err)
             logger.error(err.message, 'userController: frdReq', 10)
@@ -63,7 +64,7 @@ let sendReq =(req,res)=>{
     ReuestModel.find({})
     .exec((err, retriveUserDetails) => {
         if (err) {
-            logger.error(err.message, 'singleController: addlist', 10);
+            logger.error(err.message, 'multiController: sendReq', 10);
             let apiResponse = response.generate(true, 'Failed To Create User', 500, null)
             res.send(apiResponse)
         } 
@@ -76,7 +77,7 @@ let sendReq =(req,res)=>{
         });
         newSendReq.save((err, newList) => {
           if (err) {
-            logger.error(err.message, 'singleController: addlist', 10)
+            logger.error(err.message, 'multiController: sendReq', 10)
             let apiResponse = response.generate(true, 'Failed to create new User', 500, null)
             res.send(apiResponse)
           } else {
@@ -89,8 +90,111 @@ let sendReq =(req,res)=>{
     });
 }// end of sendReq
 
+// start of cancelReq function 
+let cancelReq =(req,res)=>{
+    
+    ReuestModel.findOneAndRemove({_id:req.body.id},(err,result)=>{
+        if(err){
+            logger.error(err.message, 'multiController: cancelReq', 10)
+            let apiResponse = response.generate(true, 'Failed to cancel request', 500, null)
+            res.send(apiResponse)
+        }else{
+            let apiResponse = response.generate(false, '', 200, null);
+            res.send(apiResponse)
+        }
+    });
+}// end of cancelReq
+
+// start of acceptReq function 
+let acceptReq =(req,res)=>{
+    console.log(req.body);
+    let newaccReq= new ReuestModel({
+        userId1:req.body.userId2,
+        userId2:req.body.userId1,
+        userName1:req.body.userName2,
+        userName2:req.body.userName1,
+        send:true,
+        accept:true
+    });
+    newaccReq.save();
+    ReuestModel.findOneAndUpdate({userId1:req.body.userId1,userId2:req.body.userId2},{$set:{accept:true}},{new:true},(err,result)=>{
+        if(err){
+            logger.error(err.message, 'multiController: cancelReq', 10)
+            let apiResponse = response.generate(true, 'Failed to Accept request', 500, null)
+            res.send(apiResponse)
+        }else{
+            console.log(result);
+            let apiResponse = response.generate(false, '', 200, null);
+            res.send(apiResponse)
+        }
+    });
+}// end of acceptReq
+
+let undo=(req,res)=>{
+    HistoryModel.find()
+    .exec((err,result)=>{
+        if(err){
+            res.send({status:404});
+        }else{
+
+            let finaldata=result[result.length-1];
+            let query=result[result.length-1].query;
+            let queryObj=result[result.length-1].queryObj;
+            let modal=result[result.length-1].modal;
+            var connection = mongoose.createConnection('mongodb://localhost:27017/todo');
+            //var collection = connection.collection(modal);
+            console.log("-->",modal);
+            
+            // model.queryObj.exec((err,result)=>{
+            //     if(err){
+            //         console.log("====================");
+            //     }
+            // });
+            // let apiResponse=response.generate(false,"get undo data",200,finaldata);
+            // res.send(apiResponse);
+        }
+    });
+}
+
+let mgetAllList=(req,res)=>{
+    TodolistModel.find({userId:req.body.userId})
+  .lean()
+  .exec((err,result)=>{
+    if(err){
+      logger.error(err.message,'singleController: getAllList',10);
+      let apiResponse=response.generate(true,'Fail to get all List',500,null);
+      res.send(apiResponse);
+    } else if(check.isEmpty(result)){
+      logger.info('No list found, singleController: getAllList');
+      let apiResponse=response.generate(false,'No List! Add Some',300,null);
+      res.send(apiResponse);
+    }else{
+      let apiResponse=response.generate(false,'List Found',200,result);
+      res.send(apiResponse);
+    }
+  });
+}
+
+let unfriend = (req,res)=>{
+
+    ReuestModel.deleteMany({userId1: {$in: [req.body.userId1, req.body.userId2]},userId2: {$in: [req.body.userId2, req.body.userId1]}},(err,result)=>{
+        if(err){
+            let apiResponse = response.generate(true, 'Failed to Unfriend', 500, null)
+            res.send(apiResponse)
+        }else{
+            let apiResponse = response.generate(false, '', 200, null);
+            res.send(apiResponse)
+        }
+    });
+ 
+}
 module.exports = {
     frdReq: frdReq,
     frdList:frdList,
-    sendReq:sendReq
+    sendReq:sendReq,
+    cancelReq:cancelReq,
+    undo:undo,
+    mgetAllList:mgetAllList,
+    acceptReq:acceptReq,
+    unfriend:unfriend
   }// end exports

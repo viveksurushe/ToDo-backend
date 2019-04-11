@@ -9,7 +9,7 @@ module.exports.setRouter = (app) => {
 
     app.post(`${baseUrl}/addlist`, singleController.addlist);
 
-    app.get(`${baseUrl}/getAllList`, singleController.getAllList);
+    app.post(`${baseUrl}/getAllList`, singleController.getAllList);
 
     app.post(`${baseUrl}/deleteList`, singleController.deleteList);
 

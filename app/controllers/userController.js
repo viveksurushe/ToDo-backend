@@ -49,8 +49,10 @@ let signUpFunction = (req, res) => {
               let apiResponse = response.generate(true, 'Failed To Create User', 500, null)
               reject(apiResponse)
             } else if (check.isEmpty(retriveUserDetails)) {
+                let uid=shortid.generate();
               let newUser = new UserModel({
-                userId: shortid.generate(),
+                userId: uid,
+                access:'['+uid+']',
                 firstName: req.body.firstName,
                 lastName: req.body.lastName,
                 email: req.body.email,

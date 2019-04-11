@@ -12,6 +12,7 @@ var cookieParser = require('cookie-parser')
 
 /* Models */
 const TodolistModel = mongoose.model('todolist');
+const HistoryModel = mongoose.model('history');
 
 let addlist = (req,res)=>{
     TodolistModel.findOne({ listName: req.body.listName })
@@ -21,10 +22,12 @@ let addlist = (req,res)=>{
         let apiResponse = response.generate(true, 'Failed To Create User', 500, null)
         res.send(apiResponse)
       } else if (check.isEmpty(retriveUserDetails)) {
+        let cListId=shortid.generate();
         let newTodolist = new TodolistModel({
           userId: req.body.userId,
-          listId:shortid.generate(),
+          listId:cListId,
           listName:req.body.listName,
+          addby:req.body.addby?req.body.addby:'',
           createdOn: time.now()
         });
         newTodolist.save((err, newList) => {
@@ -34,6 +37,15 @@ let addlist = (req,res)=>{
             res.send(apiResponse)
           } else {
             let newListObj = newList.toObject();
+            let newHistory=new HistoryModel({
+              modal:'TodolistModel',
+              query:'deleteOne({listId:'+cListId+'})'
+            });
+            newHistory.save((err,result)=>{
+              if(err){
+                logger.error(err.message, 'singleController: addlist,History', 10)
+              }
+            });
             let apiResponse = response.generate(false, 'New Todo List Added', 200, null);
             res.send(apiResponse)
           }
@@ -47,7 +59,7 @@ let addlist = (req,res)=>{
 }
 
 let getAllList =(req,res)=>{
-  TodolistModel.find()
+  TodolistModel.find({userId:req.body.userId})
   .lean()
   .exec((err,result)=>{
     if(err){
@@ -56,7 +68,7 @@ let getAllList =(req,res)=>{
       res.send(apiResponse);
     } else if(check.isEmpty(result)){
       logger.info('No list found, singleController: getAllList');
-      let apiResponse=response.generate(true,'No List Found',404,null);
+      let apiResponse=response.generate(false,'No List! Add Some',300,null);
       res.send(apiResponse);
     }else{
       let apiResponse=response.generate(false,'List Found',200,result);
