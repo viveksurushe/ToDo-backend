@@ -156,23 +156,39 @@ let undo=(req,res)=>{
     });
 }
 
-let mgetAllList=(req,res)=>{
-    TodolistModel.find({userId:req.body.userId})
-  .lean()
-  .exec((err,result)=>{
-    if(err){
-      logger.error(err.message,'singleController: getAllList',10);
-      let apiResponse=response.generate(true,'Fail to get all List',500,null);
-      res.send(apiResponse);
-    } else if(check.isEmpty(result)){
-      logger.info('No list found, singleController: getAllList');
-      let apiResponse=response.generate(false,'No List! Add Some',300,null);
-      res.send(apiResponse);
-    }else{
-      let apiResponse=response.generate(false,'List Found',200,result);
-      res.send(apiResponse);
-    }
-  });
+let mgetAllList=async (req,res)=>{
+    let arr=[];
+    arr.push(req.body.userId1);
+    await ReuestModel.find({userId1:req.body.userId1,accept:true,send:true})
+    .select('userId2')
+    .exec((err,result)=>{
+        if(err){
+            logger.error(err.message,'multiController: mgetAllList',10);
+            let apiResponse=response.generate(true,'Fail to get all List',500,null);
+            res.send(apiResponse);
+        }else{
+            for(val of result){
+                arr.push(val.userId2);
+            }
+        }
+    });
+
+    await TodolistModel.find({userId:{$in:arr}})
+    .lean()
+    .exec((err,result)=>{
+        if(err){
+        logger.error(err.message,'multiController: mgetAllList',10);
+        let apiResponse=response.generate(true,'Fail to get all List',500,null);
+        res.send(apiResponse);
+        } else if(check.isEmpty(result)){
+        logger.info('No list found, multiController: mgetAllList');
+        let apiResponse=response.generate(false,'No List! Add Some',300,null);
+        res.send(apiResponse);
+        }else{
+        let apiResponse=response.generate(false,'',200,result);
+        res.send(apiResponse);
+        }
+    });
 }
 
 let unfriend = (req,res)=>{

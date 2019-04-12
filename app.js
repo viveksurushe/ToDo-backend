@@ -178,10 +178,12 @@ io.sockets.on('connection',(socket)=>{
   });
 
   socket.on('updateFrd',(userId)=>{
-    console.log("workk");
     io.sockets.emit('updatedFrd', clients);
   });
   
+  socket.on('update-todolist',()=>{
+    io.sockets.emit('updated-todolist',clients);
+  })
 });
 // end socketio connection handler
 
