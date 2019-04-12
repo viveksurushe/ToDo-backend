@@ -158,19 +158,8 @@ io.sockets.on('connection',(socket)=>{
   ++clients;
   console.log("------------->new connection id",socket.id);
   
-  socket.on('updateList',(userId)=>{
-    TodolistModel.find({userId:userId})
-    .lean()
-    .exec((err,result)=>{
-      if(err){
-        console.log("Error Occured in socket io event");
-      } else if(check.isEmpty(result)){
-        console.log("error list is empty");
-        socket.emit('updatedList',result);
-      }else{
-        socket.emit('updatedList',result);
-      }
-    });
+  socket.on('updateList',()=>{
+    io.sockets.emit('updated-todolist',clients);
   })
 
   socket.on('disconnect', function () {
@@ -183,7 +172,12 @@ io.sockets.on('connection',(socket)=>{
   
   socket.on('update-todolist',()=>{
     io.sockets.emit('updated-todolist',clients);
-  })
+  });
+
+  socket.on('update-listview',()=>{
+    io.sockets.emit('updated-listview',clients);
+  });
+  
 });
 // end socketio connection handler
 
