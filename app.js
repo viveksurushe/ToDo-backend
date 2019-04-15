@@ -148,9 +148,6 @@ mongoose.connection.on('open', function (err) {
   //process.exit(1)
 }); // enr mongoose connection open handler
 
-/* Models */
-const TodolistModel = mongoose.model('todolist');
-const UserModel = mongoose.model('users');
 
 const io = socket(server);
 var clients = 0;
