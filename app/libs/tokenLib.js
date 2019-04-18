@@ -68,6 +68,6 @@ let verifyClaimWithoutSecret = (token,cb) => {
 
 module.exports = {
   generateToken: generateToken,
-  verifyToken :verifyClaim,
+  verifyClaim :verifyClaim,
   verifyClaimWithoutSecret: verifyClaimWithoutSecret
 }
