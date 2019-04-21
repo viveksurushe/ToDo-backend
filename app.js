@@ -153,7 +153,7 @@ const io = socket(server);
 var clients = 0;
 io.sockets.on('connection',(socket)=>{
   ++clients;
-  console.log("------------->new connection id",socket.id);
+  // console.log("------------->new connection id",socket.id);
   
   socket.on('updateList',()=>{
     io.sockets.emit('updated-todolist',clients);
