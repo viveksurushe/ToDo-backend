@@ -10,6 +10,8 @@ module.exports.setRouter = (app) => {
 
     app.post(`${baseUrl}/addlist`,auth.isAuthorized,singleController.addlist);
 
+    app.post(`${baseUrl}/undoadd`,auth.isAuthorized,singleController.undoadd);
+
     app.post(`${baseUrl}/getAllList`,auth.isAuthorized, singleController.getAllList);
 
     app.post(`${baseUrl}/deleteList`,auth.isAuthorized, singleController.deleteList);

@@ -38,25 +38,25 @@ let frdReq =(req,res)=>{
 }// end of frdReq
 
 // start of frdList function 
-let frdList =(req,res)=>{
-    ReuestModel.find({userId1:req.body.userId1,accept:true})
-    .select('_id userName2 userId2')
-    .exec((err, result) => {
-        if (err) {
-            console.log(err)
-            logger.error(err.message, 'userController: frdReq', 10)
-            let apiResponse = response.generate(true, 'Failed To Get  userlist', 500, null)
-            res.send(apiResponse)
-        } else if (check.isEmpty(result)) {
-            logger.info('No User Found', 'userController: getUserListFun')
-            let apiResponse = response.generate(true, 'No User Found', 200, null)
-            res.send(apiResponse)
-        } else {
-            let apiResponse = response.generate(false, 'Users Found', 200, result)
-            res.send(apiResponse)
-        }
-    })
-}// end of frdList
+// let frdList =(req,res)=>{
+//     ReuestModel.find({userId1:req.body.userId1,accept:true})
+//     .select('_id userName2 userId2')
+//     .exec((err, result) => {
+//         if (err) {
+//             console.log(err)
+//             logger.error(err.message, 'userController: frdReq', 10)
+//             let apiResponse = response.generate(true, 'Failed To Get  userlist', 500, null)
+//             res.send(apiResponse)
+//         } else if (check.isEmpty(result)) {
+//             logger.info('No User Found', 'userController: getUserListFun')
+//             let apiResponse = response.generate(true, 'No User Found', 200, null)
+//             res.send(apiResponse)
+//         } else {
+//             let apiResponse = response.generate(false, 'Users Found', 200, result)
+//             res.send(apiResponse)
+//         }
+//     })
+// }// end of frdList
 
 // start of sendReq function 
 let sendReq =(req,res)=>{
@@ -138,22 +138,15 @@ let undo=(req,res)=>{
         }else{
 
             let finaldata=result[result.length-1];
-            let query=result[result.length-1].query;
-            let queryObj=result[result.length-1].queryObj;
-            let modal=result[result.length-1].modal;
-            var connection = mongoose.createConnection('mongodb://localhost:27017/todo');
-            //var collection = connection.collection(modal);
-            console.log("-->",modal);
-            
-            // model.queryObj.exec((err,result)=>{
-            //     if(err){
-            //         console.log("====================");
-            //     }
-            // });
-            // let apiResponse=response.generate(false,"get undo data",200,finaldata);
-            // res.send(apiResponse);
+            //console.log("-->",finaldata);
+            let apiResponse=response.generate(false,"get undo data",200,finaldata);
+            res.send(apiResponse);
         }
     });
+}
+
+let undoDelete=(req,res)=>{
+    HistoryModel.deleteOne({_id:req.query.id},(err,result)=>{});
 }
 
 let mgetAllList=async (req,res)=>{
@@ -206,9 +199,10 @@ let unfriend = (req,res)=>{
 }
 module.exports = {
     frdReq: frdReq,
-    frdList:frdList,
+    //frdList:frdList,
     sendReq:sendReq,
     cancelReq:cancelReq,
+    undoDelete:undoDelete,
     undo:undo,
     mgetAllList:mgetAllList,
     acceptReq:acceptReq,

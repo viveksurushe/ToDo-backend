@@ -37,15 +37,7 @@ let addlist = (req,res)=>{
             res.send(apiResponse)
           } else {
             let newListObj = newList.toObject();
-            let newHistory=new HistoryModel({
-              modal:'TodolistModel',
-              query:'deleteOne({listId:'+cListId+'})'
-            });
-            newHistory.save((err,result)=>{
-              if(err){
-                logger.error(err.message, 'singleController: addlist,History', 10)
-              }
-            });
+            addHistory('TodolistModel','deleteOne',{listId:cListId});
             let apiResponse = response.generate(false, 'New Todo List Added', 200, null);
             res.send(apiResponse)
           }
@@ -55,7 +47,33 @@ let addlist = (req,res)=>{
         let apiResponse = response.generate(true, 'Todolist Already Present With this Name', 403, null);
         res.send(apiResponse);
       }
+    }); 
+}
+
+let undoadd = (req,res)=>{
+
+    console.log("req.body.listItem",req.body.listItem);
+    let newTodolist = new TodolistModel({
+          userId: req.body.userId,
+          listId:req.body.listId,
+          listName:req.body.listName,
+          listItem:req.body.listItem,
+          addby:req.body.addby,
+          createdOn: time.now()
+        });
+    newTodolist.save((err, newList) => {
+      if (err) {
+        logger.error(err.message, 'singleController: addlist', 10)
+        let apiResponse = response.generate(true, 'Failed to create new User', 500, null)
+        res.send(apiResponse)
+      } else {
+        let newListObj = newList.toObject();
+        // addHistory('TodolistModel','deleteOne',{listId:req.body.listId});
+        let apiResponse = response.generate(false, 'New Todo List Added', 200, null);
+        res.send(apiResponse)
+      }
     });
+  
 }
 
 let getAllList =(req,res)=>{
@@ -78,8 +96,19 @@ let getAllList =(req,res)=>{
 
 }
 
-let deleteList=(req,res)=>{
-  TodolistModel.deleteOne({listId:req.body.listId},(err,result)=>{
+let deleteList=async (req,res)=>{
+  var dataresult;
+  await TodolistModel.find({listId:req.body.listId},(err,result)=>{
+    if(err){
+      logger.error(err.response,'singleController: deleteList',10);
+      let apiResponse=response.generate(true,'Fail to delete List',500,null);
+      res.send(apiResponse);
+    }else {
+       dataresult=result;
+    }
+  });
+  console.log("dataresult",dataresult);
+  await TodolistModel.deleteOne({listId:req.body.listId},(err,result)=>{
     if(err){
       logger.error(err.response,'singleController: deleteList',10);
       let apiResponse=response.generate(true,'Fail to delete List',500,null);
@@ -88,6 +117,7 @@ let deleteList=(req,res)=>{
       let apiResponse=response.generate(true,'result is empty',404,null);
       res.send(apiResponse);
     }else{
+      addHistory('TodolistModel','addlist',{listName:req.body.listName,data:dataresult[0]});
       let apiResponse=response.generate(false,'List Deleted Successfully',200,null);
       res.send(apiResponse);
     }
@@ -102,6 +132,7 @@ let updateList=(req,res)=>{
       res.send(apiResponse)
     }else{
       let apiResponse = response.generate(false, 'List Name Updated Succefully', 200, null)
+      addHistory('TodolistModel','updateList',{listId:req.body.listId,listName:req.body.listName,oldName:req.body.oldName});
       res.send(apiResponse)
     }
   });
@@ -339,35 +370,48 @@ let childdelete=(req,res)=>{
   })
 }
 
-let updateChild=(req,res)=>{
-  let upChildFind=()=>{
-    return new Promise((resolve,reject)=>{
-      if(req.body.listId){
-        TodolistModel.findOne({ listId: req.body.listId })
-        .exec((err,result)=>{
-          if (err) {
-            logger.error(err.message, 'singleController: updateChild', 10);
-            let apiResponse = response.generate(true, 'Failed To update Todo child', 500, null)
-            reject(apiResponse)
-          } else{
-            result.listItem[req.body.key].child[req.body.ckey]=req.body.item;
-            resolve(result)
-          }
-        });
-      }else{
-            let apiResponse = response.generate(true, '"listId" parameter is missing', 400, null)
-            reject(apiResponse)
-      }
+  let updateChild=(req,res)=>{
+    let upChildFind=()=>{
+      return new Promise((resolve,reject)=>{
+        if(req.body.listId){
+          TodolistModel.findOne({ listId: req.body.listId })
+          .exec((err,result)=>{
+            if (err) {
+              logger.error(err.message, 'singleController: updateChild', 10);
+              let apiResponse = response.generate(true, 'Failed To update Todo child', 500, null)
+              reject(apiResponse)
+            } else{
+              result.listItem[req.body.key].child[req.body.ckey]=req.body.item;
+              resolve(result)
+            }
+          });
+        }else{
+              let apiResponse = response.generate(true, '"listId" parameter is missing', 400, null)
+              reject(apiResponse)
+        }
 
+      })
+
+    }
+
+    upChildFind(req,res)
+    .then(function(result){
+      update(req,res,result,"updated")
     })
-
   }
 
-  upChildFind(req,res)
-  .then(function(result){
-    update(req,res,result,"updated")
-  })
-}
+  function addHistory(modalName,queryName,qobj){
+    let newHistory=new HistoryModel({
+      modal:modalName,
+      query:queryName,
+      queryObj:qobj
+    });
+    newHistory.save((err,result)=>{
+      if(err){
+        logger.error(err.message, 'singleController: addlist,History', 10)
+      }
+    });
+  }
 module.exports = {
     addlist: addlist,
     getAllList:getAllList,
@@ -380,5 +424,6 @@ module.exports = {
     done:done,
     childAdd:childAdd,
     childdelete:childdelete,
-    updateChild:updateChild
+    updateChild:updateChild,
+    undoadd:undoadd
   }// end exports

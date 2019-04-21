@@ -20,6 +20,8 @@ module.exports.setRouter = (app) => {
 
     app.get(`${baseUrl}/undo`,multiController.undo);
 
+    app.get(`${baseUrl}/undoDelete`,multiController.undoDelete);
+
     app.post(`${baseUrl}/acceptReq`,auth.isAuthorized ,multiController.acceptReq);
 
     app.post(`${baseUrl}/unfriend`,auth.isAuthorized ,multiController.unfriend);

@@ -15,7 +15,7 @@ let historySchema = new Schema({
         default: ''
     },
     queryObj: {
-        type: String,
+        type: Object,
         default: ''
     }
 })
